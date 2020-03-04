@@ -250,14 +250,14 @@ type FutureGetNetworkInfoResult chan *response
 
 // Receive waits for the response promised by the future and returns data about
 // the current network.
-func (r FutureGetNetworkInfoResult) Receive() (*btcjson.GetNetworkInfoResult, error) {
+func (r FutureGetNetworkInfoResult) Receive() (*acmjson.GetNetworkInfoResult, error) {
 	res, err := receiveFuture(r)
 	if err != nil {
 		return nil, err
 	}
 
 	// Unmarshal result as an array of getpeerinfo result objects.
-	var networkInfo btcjson.GetNetworkInfoResult
+	var networkInfo acmjson.GetNetworkInfoResult
 	err = json.Unmarshal(res, &networkInfo)
 	if err != nil {
 		return nil, err
@@ -272,12 +272,12 @@ func (r FutureGetNetworkInfoResult) Receive() (*btcjson.GetNetworkInfoResult, er
 //
 // See GetNetworkInfo for the blocking version and more details.
 func (c *Client) GetNetworkInfoAsync() FutureGetNetworkInfoResult {
-	cmd := btcjson.NewGetNetworkInfoCmd()
+	cmd := acmjson.NewGetNetworkInfoCmd()
 	return c.sendCmd(cmd)
 }
 
 // GetNetworkInfo returns data about the current network.
-func (c *Client) GetNetworkInfo() (*btcjson.GetNetworkInfoResult, error) {
+func (c *Client) GetNetworkInfo() (*acmjson.GetNetworkInfoResult, error) {
 	return c.GetNetworkInfoAsync().Receive()
 }
 

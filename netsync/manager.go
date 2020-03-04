@@ -380,7 +380,6 @@ func (sm *SyncManager) isSyncCandidate(peer *peerpkg.Peer) bool {
 			log.Errorf("Unable to query for segwit "+
 				"soft-fork state: %v", err)
 		}
-
 		nodeServices := peer.Services()
 		if nodeServices&wire.SFNodeNetwork != wire.SFNodeNetwork ||
 			(segwitActive && !peer.IsWitnessEnabled()) {

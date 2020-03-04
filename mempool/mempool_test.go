@@ -365,7 +365,7 @@ type testContext struct {
 
 // addCoinbaseTx adds a spendable coinbase transaction to the test context's
 // mock chain.
-func (ctx *testContext) addCoinbaseTx(numOutputs uint32) *ltcutil.Tx {
+func (ctx *testContext) addCoinbaseTx(numOutputs uint32) *acmutil.Tx {
 	ctx.t.Helper()
 
 	coinbaseHeight := ctx.harness.chain.BestHeight() + 1
@@ -386,8 +386,8 @@ func (ctx *testContext) addCoinbaseTx(numOutputs uint32) *ltcutil.Tx {
 // It can be added to the test context's mempool or mock chain based on the
 // confirmed boolean.
 func (ctx *testContext) addSignedTx(inputs []spendableOutput,
-	numOutputs uint32, fee ltcutil.Amount,
-	signalsReplacement, confirmed bool) *ltcutil.Tx {
+	numOutputs uint32, fee acmutil.Amount,
+	signalsReplacement, confirmed bool) *acmutil.Tx {
 
 	ctx.t.Helper()
 
@@ -936,14 +936,14 @@ func TestSignalsReplacement(t *testing.T) {
 
 	testCases := []struct {
 		name               string
-		setup              func(ctx *testContext) *ltcutil.Tx
+		setup              func(ctx *testContext) *acmutil.Tx
 		signalsReplacement bool
 	}{
 		{
 			// Transactions can signal replacement through
 			// inheritance if any of its ancestors does.
 			name: "non-signaling with unconfirmed non-signaling parent",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				coinbaseOut := txOutToSpendableOut(coinbase, 0)
@@ -961,7 +961,7 @@ func TestSignalsReplacement(t *testing.T) {
 			// inheritance if any of its ancestors does, but they
 			// must be unconfirmed.
 			name: "non-signaling with confirmed signaling parent",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				coinbaseOut := txOutToSpendableOut(coinbase, 0)
@@ -976,7 +976,7 @@ func TestSignalsReplacement(t *testing.T) {
 		},
 		{
 			name: "inherited signaling",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// We'll create a chain of transactions
@@ -1001,7 +1001,7 @@ func TestSignalsReplacement(t *testing.T) {
 		},
 		{
 			name: "explicit signaling",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 				coinbaseOut := txOutToSpendableOut(coinbase, 0)
 				outs := []spendableOutput{coinbaseOut}
@@ -1054,7 +1054,7 @@ func TestCheckPoolDoubleSpend(t *testing.T) {
 
 	testCases := []struct {
 		name          string
-		setup         func(ctx *testContext) *ltcutil.Tx
+		setup         func(ctx *testContext) *acmutil.Tx
 		isReplacement bool
 	}{
 		{
@@ -1062,7 +1062,7 @@ func TestCheckPoolDoubleSpend(t *testing.T) {
 			// regardless of whether they signal replacement or not,
 			// are valid.
 			name: "no double spend",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				coinbaseOut := txOutToSpendableOut(coinbase, 0)
@@ -1079,7 +1079,7 @@ func TestCheckPoolDoubleSpend(t *testing.T) {
 			// Transactions that don't signal replacement and double
 			// spend inputs are invalid.
 			name: "non-replacement double spend",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase1 := ctx.addCoinbaseTx(1)
 				coinbaseOut1 := txOutToSpendableOut(coinbase1, 0)
 				outs := []spendableOutput{coinbaseOut1}
@@ -1113,7 +1113,7 @@ func TestCheckPoolDoubleSpend(t *testing.T) {
 			// replacement are invalid if the mempool's policy
 			// rejects replacements.
 			name: "reject replacement policy",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				// Set the mempool's policy to reject
 				// replacements. Even if we have a transaction
 				// that spends inputs that signal replacement,
@@ -1154,7 +1154,7 @@ func TestCheckPoolDoubleSpend(t *testing.T) {
 			// replacement are valid as long as the mempool's policy
 			// accepts them.
 			name: "replacement double spend",
-			setup: func(ctx *testContext) *ltcutil.Tx {
+			setup: func(ctx *testContext) *acmutil.Tx {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// Create a replaceable parent that spends the
@@ -1234,7 +1234,7 @@ func TestConflicts(t *testing.T) {
 		// setup sets up the required dependencies for each test. It
 		// returns the transaction we'll check for conflicts and its
 		// expected unique conflicts.
-		setup func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx)
+		setup func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx)
 	}{
 		{
 			// Create a transaction that would introduce no
@@ -1242,7 +1242,7 @@ func TestConflicts(t *testing.T) {
 			// spending any outputs that are currently being spent
 			// within the mempool.
 			name: "no conflicts",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				coinbaseOut := txOutToSpendableOut(coinbase, 0)
@@ -1268,7 +1268,7 @@ func TestConflicts(t *testing.T) {
 			// which are each already being spent by a different
 			// transaction within the mempool.
 			name: "conflicts",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase1 := ctx.addCoinbaseTx(1)
 				coinbaseOut1 := txOutToSpendableOut(coinbase1, 0)
 				outs := []spendableOutput{coinbaseOut1}
@@ -1294,7 +1294,7 @@ func TestConflicts(t *testing.T) {
 						"transaction: %v", err)
 				}
 
-				return tx, []*ltcutil.Tx{conflict1, conflict2}
+				return tx, []*acmutil.Tx{conflict1, conflict2}
 			},
 		},
 		{
@@ -1306,7 +1306,7 @@ func TestConflicts(t *testing.T) {
 			// the output, i.e., a descendant of the original
 			// spender.
 			name: "descendant conflicts",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// Create a replaceable parent that spends the
@@ -1332,7 +1332,7 @@ func TestConflicts(t *testing.T) {
 						"transaction: %v", err)
 				}
 
-				return tx, []*ltcutil.Tx{parent, child}
+				return tx, []*acmutil.Tx{parent, child}
 			},
 		},
 	}
@@ -1455,18 +1455,18 @@ func TestAncestorsDescendants(t *testing.T) {
 func TestRBF(t *testing.T) {
 	t.Parallel()
 
-	const defaultFee = ltcutil.SatoshiPerBitcoin
+	const defaultFee = acmutil.SatoshiPerBitcoin
 
 	testCases := []struct {
 		name  string
-		setup func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx)
+		setup func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx)
 		err   string
 	}{
 		{
 			// A transaction cannot replace another if it doesn't
 			// signal replacement.
 			name: "non-replaceable parent",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// Create a transaction that spends the coinbase
@@ -1495,7 +1495,7 @@ func TestRBF(t *testing.T) {
 			// A transaction cannot replace another if we don't
 			// allow accepting replacement transactions.
 			name: "reject replacement policy",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				ctx.harness.txPool.cfg.Policy.RejectReplacement = true
 
 				coinbase := ctx.addCoinbaseTx(1)
@@ -1527,7 +1527,7 @@ func TestRBF(t *testing.T) {
 			// would cause more than 100 transactions being
 			// replaced.
 			name: "exceeds maximum conflicts",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				const numDescendants = 100
 				coinbaseOuts := make(
 					[]spendableOutput, numDescendants,
@@ -1574,7 +1574,7 @@ func TestRBF(t *testing.T) {
 			// replacement ends up spending an output that belongs
 			// to one of the transactions it replaces.
 			name: "replacement spends parent transaction",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// Create a transaction that spends the coinbase
@@ -1607,7 +1607,7 @@ func TestRBF(t *testing.T) {
 			// lower fee rate than any of the transactions it
 			// intends to replace.
 			name: "insufficient fee rate",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase1 := ctx.addCoinbaseTx(1)
 				coinbase2 := ctx.addCoinbaseTx(1)
 
@@ -1645,7 +1645,7 @@ func TestRBF(t *testing.T) {
 			// replacing _plus_ the replacement transaction's
 			// minimum relay fee.
 			name: "insufficient absolute fee",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// We'll create a transaction with two outputs
@@ -1675,7 +1675,7 @@ func TestRBF(t *testing.T) {
 			// a new unconfirmed input that was not already in any
 			// of the transactions it's directly replacing.
 			name: "spends new unconfirmed input",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase1 := ctx.addCoinbaseTx(1)
 				coinbase2 := ctx.addCoinbaseTx(1)
 
@@ -1711,7 +1711,7 @@ func TestRBF(t *testing.T) {
 		{
 			// A transaction can replace another with a higher fee.
 			name: "higher fee",
-			setup: func(ctx *testContext) (*ltcutil.Tx, []*ltcutil.Tx) {
+			setup: func(ctx *testContext) (*acmutil.Tx, []*acmutil.Tx) {
 				coinbase := ctx.addCoinbaseTx(1)
 
 				// Create a transaction that we'll directly
@@ -1743,7 +1743,7 @@ func TestRBF(t *testing.T) {
 						"transaction: %v", err)
 				}
 
-				return tx, []*ltcutil.Tx{parent, child}
+				return tx, []*acmutil.Tx{parent, child}
 			},
 			err: "",
 		},

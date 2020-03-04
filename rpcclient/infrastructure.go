@@ -1416,8 +1416,8 @@ func (c *Client) BackendVersion() (BackendVersion, error) {
 
 	// Inspect the RPC error to ensure the method was not found, otherwise
 	// we actually ran into an error.
-	case *btcjson.RPCError:
-		if err.Code != btcjson.ErrRPCMethodNotFound.Code {
+	case *acmjson.RPCError:
+		if err.Code != acmjson.ErrRPCMethodNotFound.Code {
 			return 0, fmt.Errorf("unable to detect btcd version: "+
 				"%v", err)
 		}

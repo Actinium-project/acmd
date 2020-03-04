@@ -12,5 +12,7 @@ require (
 	github.com/davecgh/go-spew v0.0.0-20171005155431-ecdeabc65495
 	github.com/jessevdk/go-flags v0.0.0-20141203071132-1679536dcc89
 	github.com/jrick/logrotate v1.0.0
+	github.com/ltcsuite/ltcd v0.20.1-beta // indirect
+	github.com/Actinium-project/acmutil v0.0.0-20191227053721-6bec450ea6ad
 	golang.org/x/crypto v0.0.0-20200115085410-6d4e4cb37c7d
 )

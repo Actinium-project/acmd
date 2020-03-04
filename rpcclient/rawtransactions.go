@@ -18,7 +18,7 @@ import (
 const (
 	// defaultMaxFeeRate is the default maximum fee rate in sat/KB enforced
 	// by bitcoind v0.19.0 or after for transaction broadcast.
-	defaultMaxFeeRate = ltcutil.SatoshiPerBitcoin / 10
+	defaultMaxFeeRate = acmutil.SatoshiPerBitcoin / 10
 )
 
 // SigHashType enumerates the available signature hashing types that the
@@ -320,11 +320,11 @@ func (c *Client) SendRawTransactionAsync(tx *wire.MsgTx, allowHighFees bool) Fut
 		if !allowHighFees {
 			maxFeeRate = defaultMaxFeeRate
 		}
-		cmd = btcjson.NewBitcoindSendRawTransactionCmd(txHex, maxFeeRate)
+		cmd = acmjson.NewBitcoindSendRawTransactionCmd(txHex, maxFeeRate)
 
 	// Otherwise, use the AllowHighFees field.
 	default:
-		cmd = btcjson.NewSendRawTransactionCmd(txHex, &allowHighFees)
+		cmd = acmjson.NewSendRawTransactionCmd(txHex, &allowHighFees)
 	}
 
 	return c.sendCmd(cmd)

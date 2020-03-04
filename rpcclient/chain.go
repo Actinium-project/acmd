@@ -261,8 +261,8 @@ type FutureGetBlockChainInfoResult struct {
 // unmarshalPartialGetBlockChainInfoResult unmarshals the response into an
 // instance of GetBlockChainInfoResult without populating the SoftForks and
 // UnifiedSoftForks fields.
-func unmarshalPartialGetBlockChainInfoResult(res []byte) (*btcjson.GetBlockChainInfoResult, error) {
-	var chainInfo btcjson.GetBlockChainInfoResult
+func unmarshalPartialGetBlockChainInfoResult(res []byte) (*acmjson.GetBlockChainInfoResult, error) {
+	var chainInfo acmjson.GetBlockChainInfoResult
 	if err := json.Unmarshal(res, &chainInfo); err != nil {
 		return nil, err
 	}
@@ -271,13 +271,13 @@ func unmarshalPartialGetBlockChainInfoResult(res []byte) (*btcjson.GetBlockChain
 
 // unmarshalGetBlockChainInfoResultSoftForks properly unmarshals the softforks
 // related fields into the GetBlockChainInfoResult instance.
-func unmarshalGetBlockChainInfoResultSoftForks(chainInfo *btcjson.GetBlockChainInfoResult,
+func unmarshalGetBlockChainInfoResultSoftForks(chainInfo *acmjson.GetBlockChainInfoResult,
 	version BackendVersion, res []byte) error {
 
 	switch version {
 	// Versions of bitcoind on or after v0.19.0 use the unified format.
 	case BitcoindPost19:
-		var softForks btcjson.UnifiedSoftForks
+		var softForks acmjson.UnifiedSoftForks
 		if err := json.Unmarshal(res, &softForks); err != nil {
 			return err
 		}
@@ -285,7 +285,7 @@ func unmarshalGetBlockChainInfoResultSoftForks(chainInfo *btcjson.GetBlockChainI
 
 	// All other versions use the original format.
 	default:
-		var softForks btcjson.SoftForks
+		var softForks acmjson.SoftForks
 		if err := json.Unmarshal(res, &softForks); err != nil {
 			return err
 		}
